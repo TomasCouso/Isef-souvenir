@@ -56,54 +56,54 @@ document.getElementById("phrase").textContent = frase;
 
 const canvas = document.getElementById("confetti");
 const ctx = canvas.getContext("2d");
-let confettis = [];
+let fogParticles = [];
 
 function resize() {
   canvas.width = window.innerWidth;
   canvas.height = window.innerHeight;
 }
-
 window.addEventListener("resize", resize);
 resize();
 
-function createConfetti() {
-  for (let i = 0; i < 60; i++) {
-    confettis.push({
+function createFog() {
+  for (let i = 0; i < 50; i++) {
+    fogParticles.push({
       x: Math.random() * canvas.width,
-      y: Math.random() * canvas.height - canvas.height,
-      r: Math.random() * 4 + 2,
-      d: Math.random() * 20 + 10,
-      color: `hsl(${Math.random() * 360}, 80%, 60%)`,
-      tilt: Math.random() * 10 - 10,
+      y: Math.random() * canvas.height,
+      r: Math.random() * 250 + 100, // tamaño grande
+      speedX: (Math.random() - 2) * 2, // movimiento suave
+      speedY: (Math.random() - 0.5) * 0.1,
+      alpha: Math.random() * 0.05 + 0.03, // transparencia baja
     });
   }
 }
 
-function drawConfetti() {
+function drawFog() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
-  confettis.forEach((c) => {
+  fogParticles.forEach((p) => {
+    const gradient = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.r);
+    gradient.addColorStop(0, `rgba(255, 255, 255, ${p.alpha})`);
+    gradient.addColorStop(1, "rgba(255, 255, 255, 0)");
+
     ctx.beginPath();
-    ctx.fillStyle = c.color;
-    ctx.arc(c.x, c.y, c.r, 0, Math.PI * 2);
+    ctx.fillStyle = gradient;
+    ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
     ctx.fill();
-  });
-  updateConfetti();
-}
 
-function updateConfetti() {
-  confettis.forEach((c) => {
-    c.y += c.d / 40;
-    c.x += Math.sin(c.tilt / 20);
-    if (c.y > canvas.height) {
-      c.y = -10;
-      c.x = Math.random() * canvas.width;
-    }
+    p.x += p.speedX;
+    p.y += p.speedY;
+
+    if (p.x - p.r > canvas.width) p.x = -p.r;
+    if (p.x + p.r < 0) p.x = canvas.width + p.r;
+    if (p.y - p.r > canvas.height) p.y = -p.r;
+    if (p.y + p.r < 0) p.y = canvas.height + p.r;
   });
 }
 
-createConfetti();
+createFog();
+
 function animate() {
-  drawConfetti();
+  drawFog();
   requestAnimationFrame(animate);
 }
 animate();
